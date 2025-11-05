@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  livestream-app:
+    build: .
+    container_name: livestream-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"   # HTTP Web Interface
+      - "1935:1935"   # RTMP Streaming
+      - "8000:8000"   # HLS Playback
+    environment:
+      - NODE_ENV=production
+      - HTTP_PORT=3000
+      - RTMP_PORT=1935
+      - DOMAIN=${DOMAIN:-localhost}
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-key}
+      - FFMPEG_PATH=/usr/bin/ffmpeg
+    volumes:
+      - ./livestream.db:/app/livestream.db
+      - ./media:/app/media
+      - ./recordings:/app/recordings
+    networks:
+      - livestream-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: livestream-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/letsencrypt:ro  # SSL certificates
+    depends_on:
+      - livestream-app
+    networks:
+      - livestream-network
+
+networks:
+  livestream-network:
+    driver: bridge
+
+volumes:
+  livestream-data:
