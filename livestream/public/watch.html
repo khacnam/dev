@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xem Live Stream</title>
+  <link href="https://cdn.jsdelivr.net/npm/video.js@7.20.3/dist/video-js.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
+      color: white;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: white;
+    }
+
+    .home-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .home-btn:hover {
+      background: #5568d3;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .video-js {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16/9;
+    }
+
+    .stream-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .stream-info h2 {
+      margin-bottom: 15px;
+      color: #667eea;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .status-badge.live {
+      background: #28a745;
+      color: white;
+      animation: pulse 2s infinite;
+    }
+
+    .status-badge.offline {
+      background: #dc3545;
+      color: white;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: rgba(220, 53, 69, 0.2);
+      border: 2px solid #dc3545;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .share-section {
+      background: rgba(33, 150, 243, 0.2);
+      border: 2px solid #2196F3;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .share-section h3 {
+      color: #2196F3;
+      margin-bottom: 15px;
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .share-btn.facebook {
+      background: #1877f2;
+      color: white;
+    }
+
+    .share-btn.twitter {
+      background: #1da1f2;
+      color: white;
+    }
+
+    .share-btn.copy {
+      background: #28a745;
+      color: white;
+    }
+
+    .share-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .info-text {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .share-buttons {
+        flex-direction: column;
+      }
+
+      .share-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎥 Live Stream</h1>
+    <a href="/" class="home-btn">Trang chủ</a>
+  </div>
+
+  <div class="container">
+    <div id="loadingSection" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Đang tải stream...</p>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+      <div class="video-container">
+        <video
+          id="videoPlayer"
+          class="video-js vjs-default-skin vjs-big-play-centered"
+          controls
+          preload="auto"
+          data-setup='{}'>
+        </video>
+      </div>
+
+      <div class="stream-info">
+        <span class="status-badge" id="statusBadge">Checking...</span>
+        <h2 id="streamTitle">Live Stream</h2>
+        <p id="streamDescription" class="info-text"></p>
+      </div>
+
+      <div class="share-section">
+        <h3>Chia sẻ stream này</h3>
+        <div class="share-buttons">
+          <button class="share-btn copy" onclick="copyLink()">📋 Copy Link</button>
+          <button class="share-btn facebook" onclick="shareFacebook()">📘 Facebook</button>
+          <button class="share-btn twitter" onclick="shareTwitter()">🐦 Twitter</button>
+        </div>
+        <p class="info-text">Chia sẻ link này để bạn bè có thể xem stream</p>
+      </div>
+    </div>
+
+    <div id="errorSection" style="display: none;">
+      <div class="error-message">
+        <h2>❌ Không thể tải stream</h2>
+        <p id="errorMessage">Stream không tồn tại hoặc đã kết thúc.</p>
+        <p style="margin-top: 15px;">
+          <a href="/" class="home-btn">Quay lại trang chủ</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/video.js@7.20.3/dist/video.min.js"></script>
+  <script>
+    const streamKey = window.location.pathname.split('/').pop();
+    const domain = window.location.hostname;
+    const httpPort = window.location.port || '3000';
+    const streamUrl = `http://${domain}:8000/live/${streamKey}.m3u8`;
+
+    let player;
+    let statusCheckInterval;
+
+    async function checkStreamStatus() {
+      try {
+        const response = await fetch(`/api/stream/${streamKey}/status`);
+        const data = await response.json();
+
+        const statusBadge = document.getElementById('statusBadge');
+
+        if (data.isLive) {
+          statusBadge.textContent = '🔴 LIVE';
+          statusBadge.className = 'status-badge live';
+
+          if (data.stream) {
+            document.getElementById('streamTitle').textContent =
+              data.stream.title || `Live Stream - ${data.stream.username}`;
+            document.getElementById('streamDescription').textContent =
+              `Đang phát bởi ${data.stream.username}`;
+          }
+
+          return true;
+        } else {
+          statusBadge.textContent = 'Offline';
+          statusBadge.className = 'status-badge offline';
+          return false;
+        }
+      } catch (error) {
+        console.error('Error checking stream status:', error);
+        return false;
+      }
+    }
+
+    async function initPlayer() {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+
+      // Initialize video.js player
+      player = videojs('videoPlayer', {
+        autoplay: true,
+        controls: true,
+        fluid: true,
+        liveui: true,
+        sources: [{
+          src: streamUrl,
+          type: 'application/x-mpegURL'
+        }]
+      });
+
+      player.on('error', function() {
+        const error = player.error();
+        console.error('Video.js error:', error);
+
+        // Check if stream is actually offline
+        checkStreamStatus().then(isLive => {
+          if (!isLive) {
+            showError('Stream hiện không phát trực tiếp. Vui lòng thử lại sau.');
+          }
+        });
+      });
+
+      player.on('loadeddata', function() {
+        console.log('Stream loaded successfully');
+      });
+
+      // Check status periodically
+      statusCheckInterval = setInterval(checkStreamStatus, 10000);
+    }
+
+    function showError(message) {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('errorSection').style.display = 'block';
+      document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Share functions
+    function copyLink() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        event.target.textContent = '✓ Đã copy!';
+        setTimeout(() => {
+          event.target.textContent = '📋 Copy Link';
+        }, 2000);
+      }).catch(err => {
+        alert('Không thể copy. URL: ' + url);
+      });
+    }
+
+    function shareFacebook() {
+      const url = encodeURIComponent(window.location.href);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+    }
+
+    function shareTwitter() {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Đang xem live stream!');
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    }
+
+    // Initialize
+    async function init() {
+      const isLive = await checkStreamStatus();
+
+      if (isLive) {
+        // Wait a bit for HLS stream to be ready
+        setTimeout(() => {
+          initPlayer();
+        }, 2000);
+      } else {
+        // Stream is offline, but still show player interface
+        setTimeout(() => {
+          initPlayer();
+        }, 2000);
+
+        // Keep checking if stream comes online
+        const waitInterval = setInterval(async () => {
+          const isNowLive = await checkStreamStatus();
+          if (isNowLive && player) {
+            clearInterval(waitInterval);
+            // Reload player source
+            player.src({
+              src: streamUrl,
+              type: 'application/x-mpegURL'
+            });
+            player.play();
+          }
+        }, 5000);
+      }
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+      }
+      if (player) {
+        player.dispose();
+      }
+    });
+
+    // Start
+    init();
+  </script>
+</body>
+</html>

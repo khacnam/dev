@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+livestream.db
+media/
+*.m3u8
+*.ts
+.DS_Store
+npm-debug.log*
