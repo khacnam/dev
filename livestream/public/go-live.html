@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Live - Stream từ Camera</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 24px;
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .video-section {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    .video-overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-badge {
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge.live {
+      background: #ff0000;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #c82333;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .settings-section {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .settings-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #eee;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border-left: 4px solid #2196F3;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    .info-box h3 {
+      color: #1976D2;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .info-box p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎥 Go Live</h1>
+    <a href="/dashboard" class="back-btn">← Dashboard</a>
+  </div>
+
+  <div class="container">
+    <div class="error-message" id="errorMessage"></div>
+
+    <div class="main-content">
+      <!-- Video Section -->
+      <div class="video-section">
+        <div class="video-container">
+          <video id="previewVideo" autoplay muted playsinline></video>
+          <div class="video-overlay">
+            <div class="status-badge" id="statusBadge">
+              <span>⚫</span>
+              <span id="statusText">Offline</span>
+            </div>
+            <div class="status-badge" id="viewerBadge" style="display: none;">
+              👁️ <span id="viewerCount">0</span> viewers
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startCameraBtn" onclick="startCamera()">
+            📷 Mở Camera
+          </button>
+          <button class="btn btn-primary" id="goLiveBtn" onclick="goLive()" disabled>
+            🔴 Go Live
+          </button>
+          <button class="btn btn-danger" id="stopStreamBtn" onclick="stopStream()" disabled style="display: none;">
+            ⏹️ Dừng Stream
+          </button>
+          <button class="btn btn-secondary" id="switchCameraBtn" onclick="switchCamera()" disabled>
+            🔄 Đổi Camera
+          </button>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="durationValue">00:00</div>
+            <div class="stat-label">Thời gian</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="qualityValue">-</div>
+            <div class="stat-label">Chất lượng</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="settings-section">
+        <h2>⚙️ Cài đặt Stream</h2>
+
+        <div class="form-group">
+          <label for="streamTitle">Tiêu đề Stream</label>
+          <input type="text" id="streamTitle" placeholder="Nhập tiêu đề..." value="My Live Stream">
+        </div>
+
+        <div class="form-group">
+          <label for="streamDescription">Mô tả</label>
+          <textarea id="streamDescription" placeholder="Mô tả về stream của bạn...">Đang phát trực tiếp!</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="cameraSelect">Camera</label>
+          <select id="cameraSelect">
+            <option value="">Chọn camera...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="micSelect">Microphone</label>
+          <select id="micSelect">
+            <option value="">Chọn microphone...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="qualitySelect">Chất lượng</label>
+          <select id="qualitySelect">
+            <option value="720p">HD (720p)</option>
+            <option value="480p">SD (480p)</option>
+            <option value="360p">Low (360p)</option>
+          </select>
+        </div>
+
+        <div class="info-box">
+          <h3>💡 Hướng dẫn</h3>
+          <p>
+            1. Click "Mở Camera" để bật camera<br>
+            2. Điều chỉnh cài đặt nếu cần<br>
+            3. Click "Go Live" để bắt đầu phát<br>
+            4. Chia sẻ link để người khác xem<br>
+            5. Click "Dừng Stream" khi xong
+          </p>
+        </div>
+
+        <div class="info-box" id="shareBox" style="display: none;">
+          <h3>📤 Chia sẻ Stream</h3>
+          <p>
+            Link xem: <br>
+            <strong><span id="viewUrl">-</span></strong><br>
+            <button class="btn btn-secondary" onclick="copyViewUrl()" style="margin-top: 10px; width: 100%;">
+              📋 Copy Link
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/';
+    }
+
+    let localStream = null;
+    let mediaRecorder = null;
+    let socket = null;
+    let streamKey = null;
+    let isStreaming = false;
+    let currentCameraId = null;
+    let cameras = [];
+    let startTime = null;
+    let durationInterval = null;
+    let recordedChunks = [];
+
+    const previewVideo = document.getElementById('previewVideo');
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const viewerBadge = document.getElementById('viewerBadge');
+    const viewerCount = document.getElementById('viewerCount');
+
+    // Initialize
+    async function init() {
+      try {
+        // Get user info and stream key
+        const response = await fetch('/api/user', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const user = await response.json();
+        streamKey = user.stream_key;
+
+        // Load available devices
+        await loadDevices();
+
+        // Connect Socket.IO
+        socket = io();
+      } catch (error) {
+        showError('Không thể tải thông tin user: ' + error.message);
+      }
+    }
+
+    async function loadDevices() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        const cameraSelect = document.getElementById('cameraSelect');
+        const micSelect = document.getElementById('micSelect');
+
+        // Load cameras
+        cameras = devices.filter(d => d.kind === 'videoinput');
+        cameraSelect.innerHTML = '<option value="">Chọn camera...</option>';
+        cameras.forEach((device, index) => {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.textContent = device.label || `Camera ${index + 1}`;
+          cameraSelect.appendChild(option);
+        });
+
+        // Load microphones
+        const mics = devices.filter(d => d.kind === 'audioinput');
+        micSelect.innerHTML = '<option value="">Chọn microphone...</option>';
+        mics.forEach((device, index) => {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.textContent = device.label || `Microphone ${index + 1}`;
+          micSelect.appendChild(option);
+        });
+
+        // Select first devices by default
+        if (cameras.length > 0) {
+          cameraSelect.value = cameras[0].deviceId;
+          currentCameraId = cameras[0].deviceId;
+        }
+        if (mics.length > 0) {
+          micSelect.value = mics[0].deviceId;
+        }
+
+        // Enable switch camera if multiple cameras
+        if (cameras.length > 1) {
+          document.getElementById('switchCameraBtn').disabled = false;
+        }
+      } catch (error) {
+        showError('Không thể tải danh sách thiết bị: ' + error.message);
+      }
+    }
+
+    async function startCamera() {
+      try {
+        const cameraId = document.getElementById('cameraSelect').value;
+        const micId = document.getElementById('micSelect').value;
+        const quality = document.getElementById('qualitySelect').value;
+
+        // Get quality settings
+        const constraints = getConstraints(quality, cameraId, micId);
+
+        // Get user media
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+        previewVideo.srcObject = localStream;
+
+        // Update UI
+        document.getElementById('startCameraBtn').disabled = true;
+        document.getElementById('goLiveBtn').disabled = false;
+        document.getElementById('switchCameraBtn').disabled = cameras.length <= 1;
+
+        statusText.textContent = 'Sẵn sàng';
+        statusBadge.style.background = 'rgba(255, 193, 7, 0.8)';
+        statusBadge.querySelector('span').textContent = '🟡';
+
+        document.getElementById('qualityValue').textContent = quality.toUpperCase();
+
+        // Reload devices with labels
+        await loadDevices();
+
+      } catch (error) {
+        showError('Không thể mở camera: ' + error.message);
+        console.error(error);
+      }
+    }
+
+    function getConstraints(quality, cameraId, micId) {
+      const qualitySettings = {
+        '720p': { width: 1280, height: 720, bitrate: 2500000 },
+        '480p': { width: 854, height: 480, bitrate: 1500000 },
+        '360p': { width: 640, height: 360, bitrate: 1000000 }
+      };
+
+      const settings = qualitySettings[quality] || qualitySettings['720p'];
+
+      const constraints = {
+        video: {
+          width: { ideal: settings.width },
+          height: { ideal: settings.height },
+          frameRate: { ideal: 30 }
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      };
+
+      if (cameraId) {
+        constraints.video.deviceId = { exact: cameraId };
+      }
+      if (micId) {
+        constraints.audio.deviceId = { exact: micId };
+      }
+
+      return constraints;
+    }
+
+    async function switchCamera() {
+      if (cameras.length <= 1) return;
+
+      try {
+        const currentIndex = cameras.findIndex(c => c.deviceId === currentCameraId);
+        const nextIndex = (currentIndex + 1) % cameras.length;
+        currentCameraId = cameras[nextIndex].deviceId;
+
+        // Stop current stream
+        if (localStream) {
+          localStream.getTracks().forEach(track => track.stop());
+        }
+
+        // Start with new camera
+        document.getElementById('cameraSelect').value = currentCameraId;
+        await startCamera();
+
+      } catch (error) {
+        showError('Không thể đổi camera: ' + error.message);
+      }
+    }
+
+    async function goLive() {
+      if (!localStream) {
+        showError('Vui lòng mở camera trước');
+        return;
+      }
+
+      try {
+        isStreaming = true;
+        startTime = Date.now();
+
+        // Update stream settings
+        const title = document.getElementById('streamTitle').value;
+        const description = document.getElementById('streamDescription').value;
+
+        await fetch('/api/stream/settings', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, description })
+        });
+
+        // Setup MediaRecorder
+        const options = {
+          mimeType: 'video/webm;codecs=vp8,opus',
+          videoBitsPerSecond: 2500000
+        };
+
+        mediaRecorder = new MediaRecorder(localStream, options);
+        recordedChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+            // Send chunk to server via WebSocket
+            if (socket && socket.connected) {
+              socket.emit('stream-chunk', {
+                streamKey: streamKey,
+                chunk: event.data
+              });
+            }
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          console.log('MediaRecorder stopped');
+        };
+
+        // Start recording in chunks
+        mediaRecorder.start(1000); // Send chunk every 1 second
+
+        // Notify server about stream start
+        socket.emit('browser-stream-start', {
+          streamKey: streamKey,
+          title: title,
+          description: description
+        });
+
+        // Join stream room for viewer count
+        socket.emit('join-stream', streamKey);
+
+        // Update UI
+        document.getElementById('goLiveBtn').style.display = 'none';
+        document.getElementById('stopStreamBtn').style.display = 'inline-flex';
+        document.getElementById('stopStreamBtn').disabled = false;
+        document.getElementById('switchCameraBtn').disabled = true;
+
+        statusText.textContent = 'LIVE';
+        statusBadge.classList.add('live');
+        statusBadge.querySelector('span').textContent = '🔴';
+
+        viewerBadge.style.display = 'flex';
+
+        // Show share box
+        const viewUrl = `${window.location.origin}/watch/${streamKey}`;
+        document.getElementById('viewUrl').textContent = viewUrl;
+        document.getElementById('shareBox').style.display = 'block';
+
+        // Start duration counter
+        durationInterval = setInterval(updateDuration, 1000);
+
+      } catch (error) {
+        showError('Không thể bắt đầu stream: ' + error.message);
+        console.error(error);
+      }
+    }
+
+    function stopStream() {
+      isStreaming = false;
+
+      // Stop MediaRecorder
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+
+      // Stop all tracks
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+
+      // Notify server
+      if (socket) {
+        socket.emit('browser-stream-stop', { streamKey: streamKey });
+        socket.emit('leave-stream', streamKey);
+      }
+
+      // Clear duration counter
+      if (durationInterval) {
+        clearInterval(durationInterval);
+        durationInterval = null;
+      }
+
+      // Reset UI
+      previewVideo.srcObject = null;
+      document.getElementById('startCameraBtn').disabled = false;
+      document.getElementById('goLiveBtn').disabled = true;
+      document.getElementById('goLiveBtn').style.display = 'inline-flex';
+      document.getElementById('stopStreamBtn').style.display = 'none';
+      document.getElementById('switchCameraBtn').disabled = false;
+
+      statusText.textContent = 'Offline';
+      statusBadge.classList.remove('live');
+      statusBadge.style.background = 'rgba(0, 0, 0, 0.7)';
+      statusBadge.querySelector('span').textContent = '⚫';
+
+      viewerBadge.style.display = 'none';
+      document.getElementById('shareBox').style.display = 'none';
+      document.getElementById('durationValue').textContent = '00:00';
+    }
+
+    function updateDuration() {
+      if (!startTime) return;
+
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('durationValue').textContent =
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function copyViewUrl() {
+      const url = document.getElementById('viewUrl').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Đã copy link!');
+      });
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+      setTimeout(() => {
+        errorDiv.classList.remove('show');
+      }, 5000);
+    }
+
+    // Socket.IO listeners
+    window.addEventListener('load', () => {
+      init();
+    });
+
+    // Listen for viewer count updates
+    if (socket) {
+      socket.on('viewer-count', (count) => {
+        viewerCount.textContent = count;
+      });
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (isStreaming) {
+        stopStream();
+      }
+    });
+  </script>
+</body>
+</html>

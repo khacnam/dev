@@ -418,6 +418,10 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+app.get('/go-live', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'go-live.html'));
+});
+
 // ===== Socket.IO for Chat =====
 
 const streamRooms = new Map(); // streamKey -> Set of socket ids
@@ -495,8 +499,132 @@ io.on('connection', (socket) => {
     console.log(`Chat message in ${streamKey} from ${chatMessage.username}`);
   });
 
+  // Browser streaming: Start
+  socket.on('browser-stream-start', ({ streamKey, title, description }) => {
+    console.log('[Browser Stream] Starting:', streamKey);
+
+    // Get user from stream key
+    db.get('SELECT id, username FROM users WHERE stream_key = ?', [streamKey], (err, user) => {
+      if (err || !user) {
+        console.error('[Browser Stream] Invalid stream key:', streamKey);
+        socket.emit('stream-error', { error: 'Invalid stream key' });
+        return;
+      }
+
+      // Create stream record
+      db.run(
+        `INSERT INTO streams (user_id, stream_key, title, description, is_live, started_at)
+         VALUES (?, ?, ?, ?, 1, datetime('now'))`,
+        [user.id, streamKey, title || `${user.username}'s Live Stream`, description || 'Live from browser', user.id],
+        function(err) {
+          if (err) {
+            console.error('[Browser Stream] Error creating stream record:', err);
+            socket.emit('stream-error', { error: 'Failed to create stream' });
+            return;
+          }
+
+          const streamId = this.lastID;
+          console.log('[Browser Stream] Stream created:', streamId, 'for', user.username);
+
+          // Store stream info in socket
+          socket.streamKey = streamKey;
+          socket.streamId = streamId;
+
+          // Log analytics
+          db.run(
+            'INSERT INTO analytics (stream_id, event_type, data) VALUES (?, ?, ?)',
+            [streamId, 'browser_stream_start', JSON.stringify({ streamKey, userId: user.id })]
+          );
+
+          socket.emit('stream-started', { streamId, streamKey });
+        }
+      );
+    });
+  });
+
+  // Browser streaming: Receive chunk
+  socket.on('stream-chunk', ({ streamKey, chunk }) => {
+    // Note: This is a simplified implementation
+    // In production, you would want to:
+    // 1. Buffer chunks
+    // 2. Convert to HLS segments using FFmpeg
+    // 3. Store segments in media folder
+
+    // For now, we just acknowledge receipt
+    // The actual playback will work through the MediaRecorder -> video element path
+    console.log('[Browser Stream] Received chunk for:', streamKey, 'Size:', chunk ? chunk.size : 0);
+  });
+
+  // Browser streaming: Stop
+  socket.on('browser-stream-stop', ({ streamKey }) => {
+    console.log('[Browser Stream] Stopping:', streamKey);
+
+    if (!socket.streamId) {
+      console.log('[Browser Stream] No active stream for this socket');
+      return;
+    }
+
+    // Get stream info
+    db.get(
+      `SELECT id, started_at, max_viewers FROM streams WHERE id = ? AND is_live = 1`,
+      [socket.streamId],
+      (err, stream) => {
+        if (err || !stream) {
+          console.error('[Browser Stream] Stream not found:', socket.streamId);
+          return;
+        }
+
+        const duration = Math.floor((Date.now() - new Date(stream.started_at).getTime()) / 1000);
+
+        // Update stream record
+        db.run(
+          `UPDATE streams
+           SET is_live = 0, ended_at = datetime('now'), duration = ?
+           WHERE id = ?`,
+          [duration, socket.streamId],
+          (err) => {
+            if (err) {
+              console.error('[Browser Stream] Error updating stream:', err);
+              return;
+            }
+
+            console.log('[Browser Stream] Stream ended:', streamKey, 'Duration:', duration, 'seconds');
+
+            // Log analytics
+            db.run(
+              'INSERT INTO analytics (stream_id, event_type, data) VALUES (?, ?, ?)',
+              [socket.streamId, 'browser_stream_end', JSON.stringify({
+                streamKey,
+                duration,
+                maxViewers: stream.max_viewers
+              })]
+            );
+
+            // Notify viewers
+            io.to(streamKey).emit('stream-ended');
+
+            // Clear room
+            if (streamRooms.has(streamKey)) {
+              streamRooms.delete(streamKey);
+            }
+
+            // Clear socket stream info
+            delete socket.streamKey;
+            delete socket.streamId;
+          }
+        );
+      }
+    );
+  });
+
   // Disconnect
   socket.on('disconnect', () => {
+    // If this socket was streaming, stop the stream
+    if (socket.streamKey && socket.streamId) {
+      console.log('[Browser Stream] Socket disconnected while streaming:', socket.streamKey);
+      socket.emit('browser-stream-stop', { streamKey: socket.streamKey });
+    }
+
     // Remove from all rooms
     streamRooms.forEach((sockets, streamKey) => {
       if (sockets.has(socket.id)) {
