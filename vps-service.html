@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dịch vụ máy chủ ảo VPS/Cloud Server hiệu năng cao, ổn định, bảo mật tối ưu với giá cả cạnh tranh">
+    <title>Dịch Vụ Máy Chủ Ảo VPS - Cloud Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f7f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 50px;
+            color: #667eea;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 60px 0;
+            background: #f8f9fa;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card.popular {
+            border: 3px solid #667eea;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.popular::before {
+            content: 'PHỔ BIẾN';
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #667eea;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .plan-name {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .plan-price {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .plan-price span {
+            font-size: 0.4em;
+            color: #666;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        .plan-features li:before {
+            content: '✓';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .plan-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .plan-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Specifications Section */
+        .specs {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .spec-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .spec-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .spec-item p {
+            color: #666;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .benefits .section-title {
+            color: white;
+        }
+
+        .benefits .section-title:after {
+            background: white;
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .benefit-item {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .benefit-item h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        /* Support Section */
+        .support {
+            padding: 60px 0;
+            background: white;
+            text-align: center;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .support-item {
+            padding: 30px;
+        }
+
+        .support-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .support-item h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .support-item p {
+            color: #666;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2em;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1>🚀 Dịch Vụ Máy Chủ Ảo VPS</h1>
+            <p>Giải pháp Cloud Server hiệu năng cao, bảo mật tối ưu và giá cả cạnh tranh nhất thị trường</p>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Tính Năng Nổi Bật</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Hiệu Năng Vượt Trội</h3>
+                    <p>CPU Intel Xeon/AMD EPYC mới nhất, RAM DDR4/DDR5 ECC, SSD NVMe Gen4 tốc độ đọc/ghi cực cao lên đến 7000MB/s</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Bảo Mật Tối Đa</h3>
+                    <p>Tường lửa (Firewall) tích hợp, DDoS Protection, SSL miễn phí, backup tự động hàng ngày, mã hóa dữ liệu</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Mạng Tốc Độ Cao</h3>
+                    <p>Băng thông lên đến 10Gbps, IPv4 & IPv6 dedicated, kết nối quốc tế ổn định, uptime 99.99%</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎛️</div>
+                    <h3>Quản Lý Dễ Dàng</h3>
+                    <p>Control Panel trực quan (cPanel/Plesk/DirectAdmin), API đầy đủ, One-click installation, SSH root access</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Mở Rộng Linh Hoạt</h3>
+                    <p>Nâng cấp tài nguyên tức thì không downtime, scale theo nhu cầu, tùy chỉnh cấu hình hoàn toàn</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Backup Tự Động</h3>
+                    <p>Sao lưu tự động hàng ngày, lưu trữ tại nhiều datacenter, khôi phục dữ liệu nhanh chóng 1-click</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Uptime 99.99%</h3>
+                    <p>Hệ thống dự phòng N+1, giám sát 24/7, SLA cam kết uptime, bù trừ nếu có sự cố</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h3>Hỗ Trợ 24/7</h3>
+                    <p>Đội ngũ kỹ thuật chuyên nghiệp, hỗ trợ qua ticket/live chat/phone, phản hồi nhanh < 15 phút</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <div class="container">
+            <h2 class="section-title">Bảng Giá Dịch Vụ</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-name">VPS Starter</div>
+                    <div class="plan-price">99k<span>/tháng</span></div>
+                    <ul class="plan-features">
+                        <li>2 vCPU Cores</li>
+                        <li>2GB RAM</li>
+                        <li>40GB SSD NVMe</li>
+                        <li>1TB Bandwidth</li>
+                        <li>1 IPv4 Address</li>
+                        <li>Free IPv6 (/64)</li>
+                        <li>DDoS Protection</li>
+                        <li>Backup hàng tuần</li>
+                    </ul>
+                    <a href="#" class="plan-button">Đăng Ký Ngay</a>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="plan-name">VPS Business</div>
+                    <div class="plan-price">299k<span>/tháng</span></div>
+                    <ul class="plan-features">
+                        <li>4 vCPU Cores</li>
+                        <li>8GB RAM</li>
+                        <li>120GB SSD NVMe</li>
+                        <li>3TB Bandwidth</li>
+                        <li>2 IPv4 Addresses</li>
+                        <li>Free IPv6 (/64)</li>
+                        <li>DDoS Protection Pro</li>
+                        <li>Backup hàng ngày</li>
+                        <li>Free cPanel/Plesk</li>
+                        <li>Priority Support</li>
+                    </ul>
+                    <a href="#" class="plan-button">Đăng Ký Ngay</a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">VPS Enterprise</div>
+                    <div class="plan-price">799k<span>/tháng</span></div>
+                    <ul class="plan-features">
+                        <li>8 vCPU Cores</li>
+                        <li>16GB RAM</li>
+                        <li>300GB SSD NVMe</li>
+                        <li>10TB Bandwidth</li>
+                        <li>4 IPv4 Addresses</li>
+                        <li>Free IPv6 (/64)</li>
+                        <li>DDoS Protection Ultimate</li>
+                        <li>Backup realtime</li>
+                        <li>Free cPanel/Plesk</li>
+                        <li>Dedicated Support</li>
+                        <li>Custom Configuration</li>
+                        <li>Free Migration</li>
+                    </ul>
+                    <a href="#" class="plan-button">Đăng Ký Ngay</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Specifications Section -->
+    <section class="specs">
+        <div class="container">
+            <h2 class="section-title">Thông Số Kỹ Thuật</h2>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <h4>💻 CPU</h4>
+                    <p>Intel Xeon E5/Gold/Platinum hoặc AMD EPYC 7002/7003 series</p>
+                </div>
+                <div class="spec-item">
+                    <h4>🎯 RAM</h4>
+                    <p>DDR4/DDR5 ECC RAM, tốc độ 3200MHz+, guaranteed resources</p>
+                </div>
+                <div class="spec-item">
+                    <h4>💿 Storage</h4>
+                    <p>SSD NVMe Gen4, RAID-10 configuration, tốc độ I/O cao</p>
+                </div>
+                <div class="spec-item">
+                    <h4>🌐 Network</h4>
+                    <p>10Gbps uplink, Tier-1 network providers, low latency</p>
+                </div>
+                <div class="spec-item">
+                    <h4>🏢 Datacenter</h4>
+                    <p>Tier III/IV certified, multiple locations (HN, SG, US, EU)</p>
+                </div>
+                <div class="spec-item">
+                    <h4>⚙️ Virtualization</h4>
+                    <p>KVM/VMware virtualization, full root access</p>
+                </div>
+                <div class="spec-item">
+                    <h4>🖥️ OS Support</h4>
+                    <p>Ubuntu, Debian, CentOS, AlmaLinux, Rocky, Windows Server</p>
+                </div>
+                <div class="spec-item">
+                    <h4>🔧 Control Panel</h4>
+                    <p>cPanel, Plesk, DirectAdmin, Custom dashboard</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="container">
+            <h2 class="section-title">Lợi Ích Khi Sử Dụng Dịch Vụ</h2>
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <h3>⏱️ Triển Khai Nhanh Chóng</h3>
+                    <p>Server được cấu hình và kích hoạt trong vòng 5-15 phút sau khi thanh toán thành công</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>💰 Giá Cả Cạnh Tranh</h3>
+                    <p>Chi phí tối ưu, thanh toán linh hoạt theo tháng/quý/năm, miễn phí setup</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>🔐 An Toàn Tuyệt Đối</h3>
+                    <p>Hệ thống bảo mật nhiều lớp, giám sát 24/7, chống DDoS tự động</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>📊 Giám Sát Realtime</h3>
+                    <p>Dashboard theo dõi tài nguyên realtime, cảnh báo tự động, báo cáo chi tiết</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>🚀 Hiệu Suất Đỉnh Cao</h3>
+                    <p>Phần cứng mới nhất, tối ưu hóa tốc độ, đảm bảo performance ổn định</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>🤝 Cam Kết SLA</h3>
+                    <p>99.99% uptime guarantee, bồi thường nếu không đạt SLA cam kết</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section class="support">
+        <div class="container">
+            <h2 class="section-title">Hỗ Trợ Khách Hàng</h2>
+            <div class="support-grid">
+                <div class="support-item">
+                    <div class="support-icon">📞</div>
+                    <h3>Hotline</h3>
+                    <p>1900-xxxx</p>
+                    <p>24/7 Support</p>
+                </div>
+                <div class="support-item">
+                    <div class="support-icon">💬</div>
+                    <h3>Live Chat</h3>
+                    <p>Trò chuyện trực tiếp</p>
+                    <p>Phản hồi < 5 phút</p>
+                </div>
+                <div class="support-item">
+                    <div class="support-icon">📧</div>
+                    <h3>Email</h3>
+                    <p>support@domain.com</p>
+                    <p>Phản hồi < 30 phút</p>
+                </div>
+                <div class="support-item">
+                    <div class="support-icon">🎫</div>
+                    <h3>Ticket System</h3>
+                    <p>Hệ thống ticket</p>
+                    <p>Theo dõi chi tiết</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Sẵn Sàng Bắt Đầu?</h2>
+            <p>Đăng ký ngay hôm nay để nhận ưu đãi đặc biệt và trải nghiệm dịch vụ VPS chất lượng cao!</p>
+            <a href="#" class="cta-button">Đăng Ký Dùng Thử Miễn Phí</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 VPS Cloud Service. All rights reserved.</p>
+            <p>Dịch vụ máy chủ ảo chuyên nghiệp, uy tín và chất lượng</p>
+        </div>
+    </footer>
+</body>
+</html>
