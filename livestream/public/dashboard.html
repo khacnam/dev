@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Live Stream App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .info-group {
+      margin-bottom: 20px;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .info-value {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 5px;
+      font-family: monospace;
+      word-break: break-all;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .copy-btn {
+      padding: 8px 15px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+
+    .instructions {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 5px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+
+    .instructions h3 {
+      color: #856404;
+      margin-bottom: 10px;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+      color: #856404;
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+
+    .app-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .app-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .app-card h4 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .app-card p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status.offline {
+      background: #dc3545;
+      color: white;
+    }
+
+    .status.online {
+      background: #28a745;
+      color: white;
+    }
+
+    .share-section {
+      background: #e7f3ff;
+      border: 2px solid #2196F3;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .share-section h3 {
+      color: #1976D2;
+      margin-bottom: 15px;
+    }
+
+    .share-link {
+      display: flex;
+      gap: 10px;
+    }
+
+    .share-link input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #2196F3;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .share-btn {
+      padding: 12px 25px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .share-btn:hover {
+      background: #1976D2;
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .info-value {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .copy-btn {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>🎥 Live Stream Dashboard</h1>
+      <div class="user-info">
+        <span id="username">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Quick Actions -->
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <h2 style="color: white; border-bottom-color: rgba(255,255,255,0.3);">🚀 Bắt đầu Live Stream</h2>
+      <div style="text-align: center; padding: 20px;">
+        <p style="font-size: 16px; margin-bottom: 30px; opacity: 0.9;">
+          Chọn cách bạn muốn phát trực tiếp
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+          <a href="/go-live" style="text-decoration: none;">
+            <button style="padding: 20px 40px; background: #28a745; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)'">
+              📹 Go Live từ Browser
+            </button>
+          </a>
+          <button onclick="document.getElementById('obsInstructions').scrollIntoView({behavior: 'smooth'})" style="padding: 20px 40px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+            🎥 Dùng OBS/Larix
+          </button>
+        </div>
+        <p style="font-size: 14px; margin-top: 20px; opacity: 0.8;">
+          💡 <strong>Go Live từ Browser:</strong> Không cần cài app, click là stream ngay!<br>
+          💡 <strong>OBS/Larix:</strong> Chất lượng cao hơn, nhiều tính năng hơn
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Trạng thái Stream</h2>
+      <div style="text-align: center; padding: 20px;">
+        <span class="status offline" id="streamStatus">Offline</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Thông tin Stream của bạn</h2>
+
+      <div class="info-group">
+        <div class="info-label">Stream Key (Mã stream riêng)</div>
+        <div class="info-value">
+          <span id="streamKey">Loading...</span>
+          <button class="copy-btn" onclick="copyToClipboard('streamKey')">Copy</button>
+        </div>
+      </div>
+
+      <div class="info-group">
+        <div class="info-label">RTMP Server URL</div>
+        <div class="info-value">
+          <span id="rtmpUrl">Loading...</span>
+          <button class="copy-btn" onclick="copyToClipboard('rtmpUrl')">Copy</button>
+        </div>
+      </div>
+
+      <div class="info-group">
+        <div class="info-label">Full Stream URL (cho OBS)</div>
+        <div class="info-value">
+          <span id="streamUrl">Loading...</span>
+          <button class="copy-btn" onclick="copyToClipboard('streamUrl')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Chia sẻ Stream</h2>
+      <div class="share-section">
+        <h3>Link để người xem truy cập</h3>
+        <div class="share-link">
+          <input type="text" id="viewUrl" readonly>
+          <button class="share-btn" onclick="copyToClipboard('viewUrl')">Copy Link</button>
+          <button class="share-btn" onclick="openViewLink()">Mở</button>
+        </div>
+      </div>
+
+      <div class="instructions" id="obsInstructions">
+        <h3>Hướng dẫn sử dụng:</h3>
+        <ol>
+          <li>Copy Stream Key và RTMP Server URL</li>
+          <li>Mở app phát trực tiếp trên điện thoại hoặc OBS trên máy tính</li>
+          <li>Nhập RTMP Server URL và Stream Key vào cài đặt</li>
+          <li>Bắt đầu phát trực tiếp</li>
+          <li>Chia sẻ link "Link để người xem truy cập" cho người khác</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Apps được khuyên dùng</h2>
+
+      <h3 style="margin-top: 20px; color: #666;">📱 Cho điện thoại (iOS/Android)</h3>
+      <div class="app-list">
+        <div class="app-card">
+          <h4>Larix Broadcaster</h4>
+          <p>Miễn phí, dễ dùng</p>
+        </div>
+        <div class="app-card">
+          <h4>Streamlabs</h4>
+          <p>Nhiều tính năng</p>
+        </div>
+        <div class="app-card">
+          <h4>Prism Live Studio</h4>
+          <p>Chuyên nghiệp</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 20px; color: #666;">💻 Cho máy tính</h3>
+      <div class="app-list">
+        <div class="app-card">
+          <h4>OBS Studio</h4>
+          <p>Phổ biến nhất</p>
+        </div>
+        <div class="app-card">
+          <h4>Streamlabs Desktop</h4>
+          <p>Dựa trên OBS</p>
+        </div>
+        <div class="app-card">
+          <h4>XSplit</h4>
+          <p>Giao diện đẹp</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/';
+    }
+
+    // Load user info
+    async function loadUserInfo() {
+      try {
+        const response = await fetch('/api/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Unauthorized');
+        }
+
+        const user = await response.json();
+        document.getElementById('username').textContent = user.username;
+      } catch (error) {
+        console.error('Error loading user:', error);
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      }
+    }
+
+    // Load stream info
+    async function loadStreamInfo() {
+      try {
+        const response = await fetch('/api/stream-info', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load stream info');
+        }
+
+        const data = await response.json();
+
+        document.getElementById('streamKey').textContent = data.streamKey;
+        document.getElementById('rtmpUrl').textContent = data.rtmpUrl;
+        document.getElementById('streamUrl').textContent = data.streamUrl;
+        document.getElementById('viewUrl').value = data.viewUrl;
+
+        // Check stream status
+        checkStreamStatus(data.streamKey);
+      } catch (error) {
+        console.error('Error loading stream info:', error);
+      }
+    }
+
+    // Check stream status
+    async function checkStreamStatus(streamKey) {
+      try {
+        const response = await fetch(`/api/stream/${streamKey}/status`);
+        const data = await response.json();
+
+        const statusElement = document.getElementById('streamStatus');
+        if (data.isLive) {
+          statusElement.textContent = 'Live - Đang phát trực tiếp';
+          statusElement.className = 'status online';
+        } else {
+          statusElement.textContent = 'Offline - Chưa phát';
+          statusElement.className = 'status offline';
+        }
+      } catch (error) {
+        console.error('Error checking stream status:', error);
+      }
+    }
+
+    // Copy to clipboard
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      const text = element.tagName === 'INPUT' ? element.value : element.textContent;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = originalText;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Không thể copy. Vui lòng copy thủ công.');
+      });
+    }
+
+    // Open view link
+    function openViewLink() {
+      const viewUrl = document.getElementById('viewUrl').value;
+      window.open(viewUrl, '_blank');
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = '/';
+    }
+
+    // Initialize
+    loadUserInfo();
+    loadStreamInfo();
+
+    // Auto refresh stream status every 10 seconds
+    setInterval(() => {
+      const streamKey = document.getElementById('streamKey').textContent;
+      if (streamKey && streamKey !== 'Loading...') {
+        checkStreamStatus(streamKey);
+      }
+    }, 10000);
+  </script>
+</body>
+</html>

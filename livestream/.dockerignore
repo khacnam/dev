@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+*.md
+README.md
+QUICKSTART.md
+LIVESTREAM-README.md
+DEPLOYMENT-GUIDE.md
+livestream.db
+media/
+recordings/
+.DS_Store
+Thumbs.db
